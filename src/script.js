@@ -2,82 +2,99 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
-
-import PlanetVertexShader from './shaders/planets/vertex.glsl'
-import PlanetFragmentShader from './shaders/planets/fragment.glsl'
-/**
- * 
- * BASE ANCHOR
- */
+import Stats from 'stats.js'
 
 
-// DEBUG PANEL
-const gui = new dat.GUI( );
 
-// Canvas 
-const canvas = document.querySelector( '.webgl' );
-
-// Scene 
-const scene = new THREE.Scene( );
-
-//  Load Manager
-
-const LoadingManager = new THREE.LoadingManager(
-    // When finished successfully
-    ( Finished ) =>
-    {
-        console.log( `FINISHED LOADING ${FINISH}` );
-    },
-    // Items loading
-    ( LoadingUrl, itemsLoaded, itemsTotal ) =>
-    {
-        console.log( `Started Loading : ${LoadingUrl} \n
-            Loaded: ${itemsLoaded} of  ${itemsTotal}` );
-    },
-    // If errors occur on load
-    ( Error ) =>
-    {
-        console.log( `${Error}` )
-    } )
-
-// Textures
-const textureLoader = new THREE.TextureLoader( LoadingManager );
-
-/**
- * 
- * GEOMETRY
- */
-const material = new THREE.ShaderMaterial(
-{
-    vertexShader: PlanetVertexShader,
-    fragmentShader: PlanetFragmentShader,
-    wireframe: true,
-    // ANCHOR uniforms
-    uniforms:
-    {
-        uTime: { value: null }
-    }
-} )
-
-const testmaterial = new THREE.MeshNormalMaterial( { wireframe: true } );
-const geometry = new THREE.BoxBufferGeometry( 1, 1, 1, 32, 32, 32 );
-for ( const i in geometry.vertices )
-{
-    const vertex = geometry.vertices[ i ];
-    vertex.normalize( ).multiplyScalar( radius );
-
-}
-const testMesh = new THREE.Mesh( geometry, testmaterial );
-scene.add( testMesh )
+let camera;
+let scene;
+let renderer;
+let controls;
+let stats;
+const canvas = document.querySelector( 'canvas.webgl' );
+let supportsExtension = true;
 
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
+}
+
+const init = ( ) =>
+{
+    /**
+     * ANCHOR RENDERER
+     */
+
+    Render( )
+
+    /**
+     * ANCHOR STATS
+     */
+    stats = new Stats( );
+    document.body.appendChild( stats.dom );
+
+    // Our scene
+    scene = new THREE.Scene( );
+
+    // geometry
+    testGeometry( )
+
+    // Lights
+    lightSetup( )
+
+    /**
+     * ANCHOR Camera
+     */
+    camera = new THREE.PerspectiveCamera( 75, sizes.width / sizes.height, 0.1, 100 )
+    camera.position.set( 2, 2, 6 )
+    scene.add( camera )
+
+
+    /**
+     * ANCHOR Controls
+     */
+    controls = new OrbitControls( camera, canvas );
+    controls.enableDamping = true;
+
+    // Setup post-processing step
+    // setupPost( );
+
+    onWindowResize( );
+    window.addEventListener( 'resize', onWindowResize );
+
+    /**
+     * ANCHOR Debug Panel
+     */
+    debugPanel( )
 };
 
 
-// Resize Listener 
-window.addEventListener( 'resize', ( ) =>
+function debugPanel( )
+{
+    const gui = new dat.GUI( );
+}
+
+function testGeometry( )
+{
+    const geometry = new THREE.TorusKnotGeometry( 1, 0.3, 128, 64 );
+    const material = new THREE.MeshPhysicalMaterial( );
+    const mesh = new THREE.Mesh( geometry, material )
+    scene.add( mesh )
+}
+
+
+function lightSetup( LightParams )
+{
+    // const ambientLight = new THREE.AmbientLight( { color: '#ffff00', intensity: 100 } );
+    // scene.add( ambientLight )
+    const pointLight = new THREE.PointLight( 0xff0000, 1, 100 );
+    pointLight.position.set( 10, 10, 10 );
+    scene.add( pointLight );
+}
+
+
+
+function onWindowResize( )
 {
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
@@ -89,45 +106,35 @@ window.addEventListener( 'resize', ( ) =>
     // Update renderer
     renderer.setSize( sizes.width, sizes.height )
     renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) )
-
-} );
-
-// Camera
-const camera = new THREE.PerspectiveCamera( 60, sizes.width / sizes.height, .1, 100 );
-camera.position.set( 4, 1, -4 );
-scene.add( camera );
-
-// Orbit Controls
-const controls = new OrbitControls( camera, canvas )
-controls.enableDamping = true;
-
-// Renderer
-const renderer = new THREE.WebGLRenderer(
-{
-    canvas: canvas
-} )
-renderer.setSize( sizes.width, sizes.height )
-renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2 ) );
-
-// Mouse Coords
-const mouse = {
-    x: null,
-    y: null,
 }
-window.addEventListener( "mousemove", ( _event ) =>
-{
-    mouse.x = ( _event.clientX / sizes.width ) * 2 - 1;
-    mouse.y = -( _event.clientY / sizes.height ) * 2 + 1;
-} );
 
-// Update
-const clock = new THREE.Clock( )
 
-const tick = ( ) =>
+window.addEventListener( 'resize', onWindowResize );
+
+function Render( )
 {
+    renderer = new THREE.WebGLRenderer(
+    {
+        canvas: canvas,
+        powerPreference: 'high-performance',
+        antialias: true
+    } )
+    renderer.shadowMap.enabled = true
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.setSize( sizes.width, sizes.height )
+    renderer.setPixelRatio( window.devicePixelRatio )
+}
+
+const clock = new THREE.Clock( );
+
+function animate( )
+{
+    if ( !supportsExtension ) return;
+
     const elapsedTime = clock.getElapsedTime( )
+    // stats
+    stats.begin( );
 
-    material.uniforms.uTime.value = elapsedTime
     // Update controls
     controls.update( )
 
@@ -135,7 +142,10 @@ const tick = ( ) =>
     renderer.render( scene, camera )
 
     // Call tick again on the next frame
-    window.requestAnimationFrame( tick )
+    window.requestAnimationFrame( animate )
+    stats.end( );
 }
 
-tick( )
+
+init( );
+animate( );
