@@ -12,6 +12,7 @@
     "@react-three/cannon": "^2.2.0",
     "@react-three/drei": "^6.1.1",
     "@react-three/fiber": "^7.0.1",
+    "@react-three/postprocessing": "^2.0.4-alpha.2",
     "babel-helpers": "^6.24.1",
     "babel-plugin-glsl": "^1.0.0",
     "react": "^17.0.0",
