@@ -1,38 +1,37 @@
 
 import React, { useRef, useMemo, useState } from 'react';
-// import 'react-dom';
 import { useFrame } from '@react-three/fiber';
-import './StarsMaterial';
 import * as THREE from 'three';
-import { a, config } from '@react-spring/three';
-import { Controls, useControl } from 'react-three-gui';
 
-export default function Stars({ amount }) {
+
+import './StarsMaterial';
+
+export default function Stars({ amount, branches }) {
 
     // PARAMETERS FOR STARS
     const parameters = {};
-    parameters.count = 2000000;
+    parameters.count = amount;
     parameters.size = .05;
     parameters.radius = 5;
-    parameters.branches = 3;
+    parameters.branches = branches;
     parameters.spin = 1;
     parameters.randomness = 0.5;
     parameters.randomnessPower = 3;
     parameters.insideColor = "#e54ed0";
     parameters.outsideColor = "#00076f";
 
+
     const insideColor = new THREE.Color(parameters.insideColor);
     const outsideColor = new THREE.Color(parameters.outsideColor);
 
     const [positions, colors, randomness, scales] = useMemo(() => {
         let positions = [], colors = [], randomness = [], scales = [];
-        // Randomize the XYZ Coords and Color for each Point
 
         for (let i = 0; i < amount; i++) {
             const radius = Math.random() * parameters.radius;
 
             const branchAngle =
-                ((i % parameters.branches) / parameters.branches) * Math.PI * 2;
+                ((i % branches) / branches) * Math.PI * 2;
 
             const randomX =
                 Math.pow(Math.random(), parameters.randomnessPower) *
@@ -63,32 +62,34 @@ export default function Stars({ amount }) {
             const mixedColor = insideColor.clone();
             mixedColor.lerp(outsideColor, radius / parameters.radius);
 
-            // colors.push(mixedColor.r);
-            // colors.push(mixedColor.g);
-            // colors.push(mixedColor.b);
-
             colors[i * 3] = mixedColor.r;
             colors[i * 3 + 1] = mixedColor.g;
             colors[i * 3 + 2] = mixedColor.b;
 
             scales.push(Math.random());
         }
+
         return [
             new Float32Array(positions),
             new Float32Array(colors),
             new Float32Array(randomness),
-            new Float32Array(scales)];
+            new Float32Array(scales)
+        ];
 
-    }, [amount]);
+    },
+        [parameters.count]);
 
-    // const posX = useControl('Pos X', { type: 'number', spring: true });
-    const [show, state] = useState();
+
+    const [update, setUpdate] = useState(false);
+    const mesh = useRef();
     const attribute = useRef();
-    useFrame((state) => (attribute.current.uniforms.uTime.value = state.clock.elapsedTime));
-
+    useFrame((state) => {
+        (attribute.current.uniforms.uTime.value = state.clock.elapsedTime);
+    });
     return (
-        <points>
-            <bufferGeometry attach="geometry">
+        <points ref={mesh}>
+
+            <bufferGeometry attach="geometry" dispose={null}>
 
                 {/* POSITION ATTRIBUTE */}
                 <bufferAttribute

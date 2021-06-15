@@ -25,7 +25,6 @@
         "portfinder-sync": "^0.0.2",
         "raw-loader": "^4.0.2",
         "react": "^17.0.0",
-        "react-dat-gui": "^4.1.1",
         "react-dom": "^17.0.2",
         "react-scripts": "^4.0.3",
         "stats.js": "^0.17.0",
@@ -48,6 +47,7 @@
         "@babel/preset-env": "^7.14.5",
         "@babel/preset-react": "^7.14.5",
         "@babel/runtime": "^7.14.6",
+        "@tweakpane/core": "^1.0.3",
         "babel-plugin-transform-react-remove-prop-types": "^0.4.24"
     }
 }
