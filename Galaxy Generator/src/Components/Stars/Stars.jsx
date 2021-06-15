@@ -1,9 +1,11 @@
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
+// import 'react-dom';
 import { useFrame } from '@react-three/fiber';
 import './StarsMaterial';
 import * as THREE from 'three';
-
+import { a, config } from '@react-spring/three';
+import { Controls, useControl } from 'react-three-gui';
 
 export default function Stars({ amount }) {
 
@@ -25,6 +27,7 @@ export default function Stars({ amount }) {
     const [positions, colors, randomness, scales] = useMemo(() => {
         let positions = [], colors = [], randomness = [], scales = [];
         // Randomize the XYZ Coords and Color for each Point
+
         for (let i = 0; i < amount; i++) {
             const radius = Math.random() * parameters.radius;
 
@@ -78,8 +81,9 @@ export default function Stars({ amount }) {
 
     }, [amount]);
 
+    // const posX = useControl('Pos X', { type: 'number', spring: true });
+    const [show, state] = useState();
     const attribute = useRef();
-
     useFrame((state) => (attribute.current.uniforms.uTime.value = state.clock.elapsedTime));
 
     return (

@@ -1,7 +1,4 @@
 import React, { useRef } from 'react';
-import { useLoader, apply } from '@react-three/fiber';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { useGLTF, useAnimations, material } from '@react-three/drei';
 
 

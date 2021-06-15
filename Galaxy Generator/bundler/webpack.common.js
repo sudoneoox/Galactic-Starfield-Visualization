@@ -63,6 +63,7 @@ module.exports = {
             // Images
             {
                 test: /\.(jpg|png|gif|svg|gltf|glb|bin)$/,
+                exclude: /node_modules/,
                 use: [
                 {
                     loader: 'file-loader',
@@ -76,6 +77,7 @@ module.exports = {
             // Fonts
             {
                 test: /\.(ttf|eot|woff|woff2)$/,
+                exclude: /node_modules/,
                 use: [
                 {
                     loader: 'file-loader',
