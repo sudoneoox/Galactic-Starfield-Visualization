@@ -62,7 +62,7 @@ module.exports = {
 
             // Images
             {
-                test: /\.(jpg|png|gif|svg)$/,
+                test: /\.(jpg|png|gif|svg|gltf|glb|bin)$/,
                 use: [
                 {
                     loader: 'file-loader',
@@ -93,7 +93,25 @@ module.exports = {
                 use: [
                     'raw-loader'
                 ]
-            }
+            },
+
+            //  GLTF
+            // {
+            //     test: /\.(gltf)$/,
+            //     exclude: /node_modules/,
+            //     use: [
+            //     {
+            //         loader: 'gltf-webpack-loader',
+            //         options:
+            //         {
+            //             outputPath: 'assets/models/'
+            //         }
+            //     } ],
+            //     resolve:
+            //     {
+            //         extensions: [ '.gltf', '.glb' ]
+            //     }
+            // }
         ]
     }
 }
